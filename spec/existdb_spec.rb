@@ -1,6 +1,7 @@
 
-db = Exist::ExistDB.new('localhost:8080/exist/rest/db', '/awesome')
-db.copy('mssola.xml', 'db.xml')
+db = Exist::ExistDB.new('localhost:8080/exist/rest/db')
+db.move('/awesome', '/twitter')
+# db.delete 'twitter/awesome'
 
 
 describe 'ExistDB' do

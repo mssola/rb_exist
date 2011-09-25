@@ -142,13 +142,19 @@ module Exist #:nodoc:
 
     ##
     # TODO: it does not work yet
-    def move(source, destination)
+    def move(source, dest)
       xquery = <<-XQUERY
         let $status := xmldb:move('_{source}', '_{dest}', '_{resource}')
         return <status>{$status}</status>
       XQUERY
-      params = { :source => source, :dest => destination,
-                 :resource => @collection }
+      if !@collection.empty? and !source.start_with?('/')
+        source = @collection + '/' + source
+      end
+      if !@collection.empty? and !dest.start_with?('/')
+        dest = @collection + '/' + dest
+      end
+      params = { :source => @collection, :dest => dest,
+                 :resource => source }
       kuery = query(xquery, params)
       kuery.execute
     end
@@ -159,6 +165,8 @@ module Exist #:nodoc:
     # @param *String* source The name of the file.
     #
     # @param *String* name The new name for the specified file.
+    #
+    # @return *LibXML::XML::Document* The XML tree produced by the query.
     def rename(source, name)
       xquery = <<-XQUERY
         let $status := xmldb:rename('_{col}', '_{source}', '_{name}')
@@ -171,7 +179,13 @@ module Exist #:nodoc:
     end
 
     ##
-    # TODO: it does not work yet
+    # Copies the given source document to the given destination.
+    #
+    # @param *String* source Path to the source.
+    #
+    # @param *String* dest The destination path.
+    #
+    # @return *LibXML::XML::Document* The XML tree produced by the query.
     def copy(source, dest)
       if !@collection.empty? and !source.start_with?('/')
         source = @collection + '/' + source
