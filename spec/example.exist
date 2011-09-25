@@ -1,0 +1,9 @@
+if (xmldb:collection-available('_{source}'))
+then
+    (: The source is a collection name :)
+    let $status := xmldb:copy('_{source}', '_{dest}')
+    return <status>{$status}</status>
+else
+    (: The source is a resource name :)
+    let $status := xmldb:copy('_{srccol}', '_{dest}', '_{srcres}')
+    return <status>{$status}</status>

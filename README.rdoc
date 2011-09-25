@@ -1,0 +1,6 @@
+= rb_exist
+
+== Introduction
+
+This is a simple gem that provides an API around eXist-db. It's
+inspired in the un-oficial Python support: pyexist.
