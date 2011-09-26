@@ -19,6 +19,8 @@
 
 module Exist #:nodoc:
   ##
+  # == BadResponse Class Definition
+  #
   # This is the specific exception for bad responses. Generally, it
   # should be raised when the response of an XQuery execution has as its
   # root element an <exception>.

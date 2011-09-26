@@ -85,7 +85,8 @@ module Exist #:nodoc:
     def delete(docname)
       Net::HTTP.start(@host, @port) do |http|
         request_uri =  @path + '/' + docname
-        http.delete request_uri
+        response = http.delete request_uri
+        puts response.body
       end
     end
 
@@ -141,15 +142,18 @@ module Exist #:nodoc:
     end
 
     ##
-    # TODO: it does not work yet
+    # Moves the given source document to the given destination.
+    #
+    # @param *String* source Path to the source.
+    #
+    # @param *String* dest The destination path.
+    #
+    # @return *LibXML::XML::Document* The XML tree produced by the query.
     def move(source, dest)
       xquery = <<-XQUERY
         let $status := xmldb:move('_{source}', '_{dest}', '_{resource}')
         return <status>{$status}</status>
       XQUERY
-      if !@collection.empty? and !source.start_with?('/')
-        source = @collection + '/' + source
-      end
       if !@collection.empty? and !dest.start_with?('/')
         dest = @collection + '/' + dest
       end

@@ -23,6 +23,8 @@ require 'bad_response'
 
 module Exist #:nodoc:
   ##
+  # == XQuery Class Definition
+  #
   # Represents a query. Please don't create an Exist::XQuery instance
   # directly, try using Exist::ExistDB#query instead. To execute the
   # query just call to the _execute_ method. If you just want to know,

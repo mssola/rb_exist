@@ -1,7 +1,6 @@
 
-db = Exist::ExistDB.new('localhost:8080/exist/rest/db')
-db.move('/awesome', '/twitter')
-# db.delete 'twitter/awesome'
+db = Exist::ExistDB.new('localhost:8080/exist/rest/db', '/awesome')
+db.delete '/test.xml'
 
 
 describe 'ExistDB' do
