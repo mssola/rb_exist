@@ -21,9 +21,9 @@ describe 'XQuery' do
     query = Exist::XQuery.new nil, code, params
     query.query.should eql("let $status := xmldb:copy('src_col', 'dest', 'src_res')")
 
-    code = IO.read(File.dirname(__FILE__) + '/example.exist')
+    code = IO.read(File.dirname(__FILE__) + '/data/example.exist')
     query = Exist::XQuery.new nil, code, params
-    expected = IO.read(File.dirname(__FILE__) + '/example.expected')
+    expected = IO.read(File.dirname(__FILE__) + '/data/example.expected')
     query.query.should eql(expected)
   end
 end

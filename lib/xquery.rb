@@ -52,7 +52,7 @@ module Exist #:nodoc:
 
     ##
     # Returns the number of matches that the query produces. It
-    # may also be called through its aliases: length and size.
+    # may also be called through its aliases: _length_ and _size_.
     def count
       @rows
     end

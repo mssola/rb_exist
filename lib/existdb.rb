@@ -85,8 +85,7 @@ module Exist #:nodoc:
     def delete(docname)
       Net::HTTP.start(@host, @port) do |http|
         request_uri =  @path + '/' + docname
-        response = http.delete request_uri
-        puts response.body
+        http.delete request_uri
       end
     end
 
