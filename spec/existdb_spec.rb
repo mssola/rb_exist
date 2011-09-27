@@ -1,7 +1,4 @@
 
-db = Exist::ExistDB.new('localhost:8080/exist/rest/db', '/awesome')
-db.delete '/test.xml'
-
 
 describe 'ExistDB' do
   it 'creates a new database connection' do

@@ -1,0 +1,11 @@
+xquery version "1.0";
+
+let $_{from} := '_{collection}'
+return
+<_{from}>
+{
+  for $_{element} in (collection($_{from})//_{element})
+  return
+    $_{element}/name
+}
+</_{from}>

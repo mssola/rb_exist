@@ -19,7 +19,9 @@
 
 require 'uri'
 require 'net/http'
+
 require 'xquery'
+require 'simple_sql'
 
 
 module Exist #:nodoc:
@@ -36,6 +38,10 @@ module Exist #:nodoc:
   #    res = db.query(query)
   class ExistDB
     include LibXML
+
+    ##
+    # Used by the Exist::SimpleSQL class to properly access a table.
+    attr_reader :collection
 
     ##
     # Initialize the object. Nothing fancy, just update the
@@ -124,8 +130,9 @@ module Exist #:nodoc:
     #
     # @param *String* code The code for the query.
     #
-    # @param *Hash* args Parameters to pass into the query.
-    def query(code, args)
+    # @param *Hash* args Parameters to pass into the query. The default value
+    # for this parameter is an empty hash.
+    def query(code, args = {})
       Exist::XQuery.new(self, code, args)
     end
 
@@ -138,6 +145,12 @@ module Exist #:nodoc:
     def query_from_file(filename, args)
       code = IO.read filename
       query(code, args)
+    end
+
+    ##
+    # TODO
+    def simple_sql
+      Exist::SimpleSQL.new(self)
     end
 
     ##
@@ -215,7 +228,7 @@ module Exist #:nodoc:
     # Package up an XQuery in an XML tree.
     #
     # @param *String* code The code for the query.
-    def package_query(code)
+    def package_query(code) #:doc:
       # Create the XML Document
       doc = XML::Document.new()
       doc.root = XML::Node.new('query')

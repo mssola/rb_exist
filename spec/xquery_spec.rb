@@ -1,4 +1,28 @@
 
+def user_query(where)
+  db = Exist::ExistDB.new('localhost:8080/exist/rest/db')
+  table = IO.read(File.dirname(__FILE__) + '/data/users.xml')
+  db.store 'users.xml', table
+  xquery = <<-XQUERY
+    xquery version "1.0";
+
+    let $users := '/db'
+    return
+    <users>
+    {
+      for $user in (collection($users)//user)
+      return
+        $user/name
+    }
+    </users>
+  XQUERY
+  kuery = db.query xquery
+  xml = kuery.execute
+  puts xml
+  db.delete 'users.xml'
+  kuery.count
+end
+
 
 describe 'XQuery' do
   it 'replaces the tags correctly' do
@@ -25,5 +49,10 @@ describe 'XQuery' do
     query = Exist::XQuery.new nil, code, params
     expected = IO.read(File.dirname(__FILE__) + '/data/example.expected')
     query.query.should eql(expected)
+  end
+
+  it 'retrieves the number of matches produced by the query' do
+#     xml = user_query('edat>20')
+#     puts xml
   end
 end

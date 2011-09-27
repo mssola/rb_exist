@@ -81,7 +81,7 @@ module Exist #:nodoc:
       xml
     end
 
-    private
+    protected
 
     ##
     # Replaces all the tags inside the code with the given args.
@@ -96,7 +96,7 @@ module Exist #:nodoc:
       # line characters.
       aux = code.split("\n")
       args.each do |key, value|
-        aux.map! { |str| str.sub("_{#{key.to_s}}", value) }
+        aux.map! { |str| str.gsub(/_{#{key.to_s}}/, value) }
       end
       aux.join("\n")
     end
