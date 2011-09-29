@@ -1,5 +1,4 @@
 *.gem
 pkg
 Gemfile.lock
-.rspec
 Guardfile
