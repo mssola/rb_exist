@@ -26,25 +26,4 @@ require 'existdb'
 #
 # This module acts as a namespace for all the classes defined across
 # this gem. It also defines a few pretty basic constants.
-module Exist
-  ##
-  # Gem's name.
-  NAME = 'rb_exist'
-
-  ##
-  # rb_exist is still under development.
-  VERSION = '0.0.1'
-
-  ##
-  # rb_exist is licensed under the GNU Lesser General Public License
-  # version 3 or (at your option) any later version.
-  LICENSE = 'LGPLv3+'
-
-  ##
-  # rb_exist summary.
-  SUMMARY = 'Ruby support for eXist'
-
-  ##
-  # rb_exist gem description.
-  DESCRIPTION = 'A gem that gives support to the eXist DBMS.'
-end
+module Exist; end
