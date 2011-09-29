@@ -1,24 +1,21 @@
 
 def user_query(where)
-  db = Exist::ExistDB.new('localhost:8080/exist/rest/db')
+  db = Exist::ExistDB.new("#{$server_ip}/db")
   table = IO.read(File.dirname(__FILE__) + '/data/users.xml')
   db.store 'users.xml', table
+  filter = 'user'
+  filter += "[#{where}]" unless where.empty?
   xquery = <<-XQUERY
     xquery version "1.0";
 
-    let $users := '/db'
+    let $users :=/db/users
     return
-    <users>
-    {
-      for $user in (collection($users)//user)
+      for $user in collection($users)//#{filter}
       return
         $user/name
-    }
-    </users>
   XQUERY
   kuery = db.query xquery
   xml = kuery.execute
-  puts xml
   db.delete 'users.xml'
   kuery.count
 end
@@ -52,7 +49,9 @@ describe 'XQuery' do
   end
 
   it 'retrieves the number of matches produced by the query' do
-#     xml = user_query('edat>20')
-#     puts xml
+    user_query('edat>20').should eql('1')
+    user_query('edat<19').should eql('0')
+    user_query('edat>19').should eql('2')
+    user_query('').should eql('2')
   end
 end

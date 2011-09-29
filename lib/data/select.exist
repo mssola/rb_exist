@@ -2,10 +2,6 @@ xquery version "1.0";
 
 let $_{from} := '_{collection}'
 return
-<_{from}>
-{
-  for $_{element} in (collection($_{from})//_{element})
+  for $_{element} in (collection($_{from})//_{filter})
   return
     $_{element}/name
-}
-</_{from}>
