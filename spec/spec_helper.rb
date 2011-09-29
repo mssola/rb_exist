@@ -7,4 +7,4 @@ require 'rb_exist'
 $server_ip = 'localhost:8088'
 
 # Load every single test
-Dir['spec/*.rb'].each { |f| require f }
+Dir[File.dirname(__FILE__) + '/*.rb'].each { |f| require f }
