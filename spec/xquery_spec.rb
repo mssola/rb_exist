@@ -6,13 +6,11 @@ def user_query(where)
   filter = 'user'
   filter += "[#{where}]" unless where.empty?
   xquery = <<-XQUERY
-    xquery version "1.0";
-
     let $users :=/db/users
     return
       for $user in collection($users)//#{filter}
-      return
-        $user/name
+      order by $user/name descending
+      return $user/name
   XQUERY
   kuery = db.query xquery
   xml = kuery.execute
@@ -49,9 +47,9 @@ describe 'XQuery' do
   end
 
   it 'retrieves the number of matches produced by the query' do
-    user_query('edat>20').should eql('1')
-    user_query('edat<19').should eql('0')
-    user_query('edat>19').should eql('2')
-    user_query('').should eql('2')
+    user_query('age>20').should eql('1')
+    user_query('age<19').should eql('1')
+    user_query('age>19').should eql('2')
+    user_query('').should eql('3')
   end
 end

@@ -2,6 +2,7 @@ xquery version "1.0";
 
 let $_{from} := '_{collection}'
 return
-  for $_{element} in (collection($_{from})//_{filter})
+  for $_{element} in collection($_{from})//_{filter}
+  order by $_{element}/_{row} _{asc_desc}
   return
     $_{element}/name

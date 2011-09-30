@@ -40,9 +40,10 @@ module Exist #:nodoc:
     ##
     # The select query. It takes the following parameters to work:
     #
+    #   - rows: TODO
     #   - from: the table.
     #   - where: the condition to the select query.
-    #   - TODO: to implement order by,
+    #   - order_by: how should the result be ordered.
     #
     # Select subqueries are not allowed since I don't know exactly
     # its behavior. Let's illustrate an example. Imagine that we
@@ -52,21 +53,32 @@ module Exist #:nodoc:
     #   sql = db.simple_sql # db is our Database connection
     #   sql.select(:from => 'users', :where => 'age>20')
     #
-    # Obviously, we can check the number of matches by calling the
+    # We may also want to order the result. In order to do that, we can
+    # just call this method as follows:
+    #
+    #   sql.select(from: 'users', where: 'age>20', order_by: 'name_ascending')
+    #
+    # The result will be sorted by the name in ascending order. So, you just
+    # have to write the row's name. You may also specify the ordering
+    # algorithm by appending _ascending or _descending to the row's name.
+    # However, be aware that this will only work with strings.
+    #
+    # Finally, we can check the number of matches by calling the
     # instance method SimpleSQL#count.
     #
     # @return *LibXML::XML::Document* The XML tree produced by the query.
     def select(params)
-      # First of all, let's prepare the query
-      kuery = read_query 'select'
-      params[:element] = singular_of(params[:from])
+      # First of all, let's prepare the parameters
+      params[:element] = params[:from].chop #pseudo-singular
       params[:collection] = '/db' + @db.collection
+      params[:row], params[:asc_desc] = order_of params[:order_by]
       params[:filter] = params[:element]
       if !params[:where].nil? and !params[:where].empty?
         params[:filter] += "[#{params[:where]}]"
       end
 
       # Execute the query!
+      kuery = read_query 'select'
       @query = replace_tags kuery, params
       xml = execute
     end
@@ -83,30 +95,39 @@ module Exist #:nodoc:
       # TODO
     end
 
-    ##
-    # Class method used to identify if a given query kind corresponds
-    # to an sql query.
-    #
-    # @param *Symbol* kind The given kind to evaluate.
-    #
-    # @return *Boolean* true if this is an invalid kind, false otherwise.
-    def self.invalid?(kind)
-      ![:Select, :Insert, :Update].include?(kind.capitalize)
-    end
-
     private
 
     ##
-    # TODO
+    # Internal method used to read the contents of the sql method template.
+    # It's used just for keeping the code clean.
+    #
+    # @param *String* method The method's name (select, insert,...)
+    #
+    # @return The contents of the template.
     def read_query(method)
       IO.read(File.dirname(__FILE__) + "/data/#{method}.exist")
     end
 
     ##
-    # TODO
-    def singular_of(word)
-      # TODO
-      word.chop
+    # Internal method used to retrieve the order_by info from the
+    # given parameter. By default, the order will be: order by any ascending.
+    #
+    # @param *String* order The value of the given order_by parameter.
+    # A nil object can be passed and it will return the default ordering.
+    #
+    # @return *Array* A two-sized array containing the row from which to sort
+    # as its first value. The second value may be 'ascending' or 'descending'.
+    def order_of(order) #:doc:
+      return ['any', 'ascending'] if order.nil? or order.empty?
+
+      res = [nil, 'ascending']
+      if /(.+)_(.+)$/.match(order)
+        if ['ascending', 'descending'].include? $2
+          res[0], res[1] = $1, $2
+        end
+      end
+      res[0] ||= order
+      res
     end
   end
 end

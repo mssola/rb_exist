@@ -6,19 +6,19 @@ describe 'SimpleSQL' do
     db.store 'users.xml', table
     sql = db.simple_sql
     sql.select(:from => 'users')
-    sql.count.should eql('2')
+    sql.count.should eql('3')
     sql.select(:from => 'users',
-               :where => 'edat>20')
+               :where => 'age>20')
     sql.count.should eql('1')
     sql.select(:from => 'users',
-               :where => 'edat<19')
-    sql.count.should eql('0')
+               :where => 'age<19')
+    sql.count.should eql('1')
     sql.select(:from => 'users',
-               :where => 'edat>19')
+               :where => 'age>19')
     sql.count.should eql('2')
     sql.select(:from => 'users',
                :where => '')
-    sql.count.should eql('2')
+    sql.count.should eql('3')
     db.delete 'users.xml'
   end
 
