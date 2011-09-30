@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exist:result xmlns:exist="http://exist.sourceforge.net/NS/exist" exist:hits="2" exist:start="1" exist:count="2">
+    <result>
+        <age>16</age>
+    </result>
+    <result>
+        <age>21</age>
+    </result>
+</exist:result>
