@@ -132,6 +132,8 @@ module Exist #:nodoc:
     #
     # @param *Hash* args Parameters to pass into the query. The default value
     # for this parameter is an empty hash.
+    #
+    # @return *Exist::XQuery* a new XQuery instance.
     def query(code, args = {})
       Exist::XQuery.new(self, code, args)
     end
@@ -148,7 +150,13 @@ module Exist #:nodoc:
     end
 
     ##
-    # TODO
+    # Creates a new _SimpleSQL_ object. With this object you can call tons of
+    # SQL queries without caring too much. You must remember though that every
+    # single query expects some very specific parameters to be passed in order
+    # to successfully be executed. Read the Exist::SimpleSQL documentation for
+    # further information.
+    #
+    # @return *Exist::XQuery* a new XQuery instance.
     def simple_sql
       Exist::SimpleSQL.new(self)
     end
