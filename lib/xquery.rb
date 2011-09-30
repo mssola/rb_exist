@@ -96,6 +96,7 @@ module Exist #:nodoc:
       # line characters.
       aux = code.split("\n")
       args.each do |key, value|
+        next if key == :rows
         aux.map! { |str| str.gsub(/_{#{key.to_s}}/, value) }
       end
       aux.join("\n")

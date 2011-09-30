@@ -38,9 +38,9 @@ module Exist #:nodoc:
     end
 
     ##
-    # The select query. It takes the following parameters to work:
+    # The _select_ query. It takes the following parameters to work:
     #
-    #   - rows: TODO
+    #   - rows: the rows we want to select.
     #   - from: the table.
     #   - where: the condition to the select query.
     #   - order_by: how should the result be ordered.
@@ -48,11 +48,13 @@ module Exist #:nodoc:
     # Select subqueries are not allowed since I don't know exactly
     # its behavior. Let's illustrate an example. Imagine that we
     # have a table called user with name and age as its attributes.
-    # A correct select query would be:
+    # Some correct select queries would be:
     #
     #   sql = db.simple_sql # db is our Database connection
     #   sql.select(:from => 'users', :where => 'age>20')
+    #   sql.select(:rows => ['age'], :from => 'users', :where => 'age>20')
     #
+    # Note that the rows parameter is the only one that expects an array.
     # We may also want to order the result. In order to do that, we can
     # just call this method as follows:
     #
@@ -62,9 +64,6 @@ module Exist #:nodoc:
     # have to write the row's name. You may also specify the ordering
     # algorithm by appending _ascending or _descending to the row's name.
     # However, be aware that this will only work with strings.
-    #
-    # Finally, we can check the number of matches by calling the
-    # instance method SimpleSQL#count.
     #
     # @return *LibXML::XML::Document* The XML tree produced by the query.
     def select(params)
@@ -76,9 +75,10 @@ module Exist #:nodoc:
       if !params[:where].nil? and !params[:where].empty?
         params[:filter] += "[#{params[:where]}]"
       end
+      generate_return_statement params[:rows]
 
       # Execute the query!
-      kuery = read_query 'select'
+      kuery = read_query 'select', true
       @query = replace_tags kuery, params
       xml = execute
     end
@@ -98,14 +98,38 @@ module Exist #:nodoc:
     private
 
     ##
+    # Generate the return statement necessery to complete some of the
+    # queries (such as select) that may vary its code because of the rows
+    # to select.
+    #
+    # @param *Array* rows The rows to be selected.
+    def generate_return_statement(rows) #:doc:
+      tmp = File.new(File.dirname(__FILE__) + '/data/tmp.exist', 'w+')
+      tmp.puts 'return <result>{'
+      if rows.nil? or rows.empty?
+        tmp.puts '$_{element}'
+      else
+        rows.each { |r| tmp.puts "<#{r}>{$_{element}/#{r}/text()}</#{r}>" }
+      end
+      tmp.puts '}</result>'
+      tmp.close
+    end
+
+    ##
     # Internal method used to read the contents of the sql method template.
     # It's used just for keeping the code clean.
     #
     # @param *String* method The method's name (select, insert,...)
     #
     # @return The contents of the template.
-    def read_query(method)
-      IO.read(File.dirname(__FILE__) + "/data/#{method}.exist")
+    def read_query(method, append_return = false) #:doc:
+      result = IO.read(File.dirname(__FILE__) + "/data/#{method}.exist")
+      if append_return
+        tmp = File.dirname(__FILE__) + "/data/tmp.exist"
+        result += IO.read tmp
+        FileUtils.rm tmp
+      end
+      result
     end
 
     ##

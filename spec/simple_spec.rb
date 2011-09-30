@@ -16,9 +16,10 @@ describe 'SimpleSQL' do
     sql.select(:from => 'users',
                :where => 'age>19')
     sql.count.should eql('2')
-    sql.select(:from => 'users',
+    xml = sql.select(:from => 'users',
                :where => '')
     sql.count.should eql('3')
+    xml = sql.select(:rows => ['age'], :from => 'users')
     db.delete 'users.xml'
   end
 
