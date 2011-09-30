@@ -100,6 +100,11 @@ module Exist #:nodoc:
       # TODO
     end
 
+    # TODO
+    def delete(params)
+      # TODO
+    end
+
     private
 
     ##

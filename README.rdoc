@@ -102,23 +102,32 @@ order this results by the name attribute:
   sql.select(:from => 'users', :order_by => 'name')
   sql.select(:from => 'users', :order_by => 'name_ascending')
 
-We can filter the results by passing an adequate condition, For exampe, let's
+We can filter the results by passing an adequate condition. For exampe, let's
 say that we want all the users that meet the condition 'age>20':
 
   sql.select(:from => 'users', :order_by => 'name', :where => 'age>20')
 
-Finally, let's say that we only want to get the ages. In order to do that, we
-have to deal with the :rows parameter which take an array as its value. In this
-array we have to write all the rows we want to select. Following the example:
+Finally, let's say that we only want to get the age of the users. In order to
+do that, we have to deal with the _rows_ parameter which take an array as
+its value. In this array we have to write all the rows we want to select.
+Following the example:
 
   sql.select(rows: ['age'], from: 'users', order_by: 'name', where: 'age>20')
 
-Note that the only mandatory parameter is the 'from' one. In fact, an
+Note that the only mandatory parameter is the _from_ one. In fact, an
 ArgumentError exception will be raised if this parameter is not setted. All the
 other parameters have a default value: rows='*', order_by='any_ascending' and
 where=''.
 
 === Insert
+
+TODO
+
+=== Update
+
+TODO
+
+=== Delete
 
 TODO
 
