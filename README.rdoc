@@ -3,4 +3,87 @@
 == Introduction
 
 This is a simple gem that provides an API around eXist-db. It's
-inspired in the un-oficial Python support: pyexist.
+inspired in the un-oficial Python support: pyexist. All the classes are
+contained inside the module Exist for obvious reasons. There are three
+important classes: ExistDB, XQuery and SimpleSQL.
+
+== ExistDB
+
+ExistDB creates the connection with the eXist remote database. With this
+connection you can store and delete xml files and move/copy/rename them all
+over the server. Let's show an example:
+
+  db = Exist::ExistDB.new('localhost:8088/exist/rest/db', '/awesome')
+  table = IO.read('users.xml')
+  db.store 'users.xml', table
+  db.rename 'users.xml', 'table.xml'
+  db.delete 'table.xml'
+
+First of all, we created a connection to a database located at localhost.
+Moreover, we are also telling to the ExistDB class that we want to access
+to a collection named 'awesome' located at the root directory of our database.
+After that, we read an xml file and stored it at the 'awesome' collection
+at the third line of code. Finally we renamed the xml file at the server
+and deleted it, thus leaving the collection clean.
+
+== XQuery
+
+Getting a connection is really important but it's quite useless if we
+cannot execute queries to the database. In order to do this, we are going
+to have a look to the XQuery class.
+
+First of all, you should never create an XQuery instance by yourself. Instead
+of that, you should call the Exist::ExistDB#query instance method. Let's
+see an example:
+
+  db = Exist::ExistDB.new("my_server/db")
+  table = IO.read(users.xml')
+  db.store 'users.xml', table
+  params = { :from => 'users' }
+  xquery = <<-XQUERY
+    let $_{from}:=/db/_{from}
+    return
+      for $u in collection($_{from})
+      order by $u/name descending
+      return $u/name
+  XQUERY
+  kuery = db.query xquery, params
+  xml = kuery.execute
+  db.delete 'users.xml'
+  puts kuery.count
+
+In the example above, we stored a table named users.xml, executed a query
+and finally deleted the xml file. As you can see, we first prepared the
+query by specifying some parameters and writing the query's code. In the
+query's code there are things like _{from}. This means that before the
+execution, this _{from} will be replaced by the value of the 'from' element
+from the 'params' hash. This gives us a lot of flexibility when writing new
+queries. After that, we only have to call the Exist::ExistDB#query instance
+method passing as parameters the query's code and the 'params' hash. Finally we
+can call the Exist::XQuery#execute instance method to execute the query. The
+result will be a response in xml format with the results of our query. Another
+important method is the Exist::XQuery#count instance method that gives us the
+number of matches that our query produced on its execution.
+
+== SimpleSQL
+
+This class is a subclass of the XQuery class and it's quite tricky. Its main
+objective is to provide methods to the programmer that imitate the SQL
+syntax. It's meant to be used for "pretty standard" queries such as
+selecting values from an xml file that meets some specific conditions,
+to insert a new node on the xml by considering this file as a table, etc.
+However, if you have to go beyond of that, in short, this is not the class
+you're looking for.
+
+As for the XQuery class, it's not expected that you create an instance
+of the SimpleSQL class on your own. In order to do that, you have to
+call the Exist::ExistDB#simple_sql instance method. After calling this
+method you can execute multiple queries by taking the SQL's point of view.
+
+The SimpleSQL class defines some methods that emulate the SQL syntax and each
+of these methods expect some very specific parameters to be passed in order
+to successfully be executed. Let's see some of the queries you can execute.
+
+=== Select
+
+TODO
