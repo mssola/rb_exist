@@ -111,7 +111,7 @@ Finally, let's say that we only want to get the ages. In order to do that, we
 have to deal with the :rows parameter which take an array as its value. In this
 array we have to write all the rows we want to select. Following the example:
 
-  sql.select(rows: ['age'], from: 'users', :order_by: 'name', where: 'age>20')
+  sql.select(rows: ['age'], from: 'users', order_by: 'name', where: 'age>20')
 
 Note that the only mandatory parameter is the 'from' one. In fact, an
 ArgumentError exception will be raised if this parameter is not setted. All the
