@@ -29,6 +29,17 @@ end
 # Let the testing begin!
 
 describe 'SimpleSQL' do
+  it 'raises an exception if the from parameter is not setted' do
+    db = Exist::ExistDB.new("#{$server_ip}/db")
+    base =File.dirname(__FILE__) + '/data/'
+    table = IO.read(base + 'users.xml')
+    db.store 'users.xml', table
+    sql = db.simple_sql
+    expect{sql.select({})}.to raise_error(ArgumentError)
+    expect{sql.select({ :where => 'age>20'})}.to raise_error(ArgumentError)
+    db.delete 'users.xml'
+  end
+
   it 'executes the select query correctly' do
     db = Exist::ExistDB.new("#{$server_ip}/db")
     base =File.dirname(__FILE__) + '/data/'

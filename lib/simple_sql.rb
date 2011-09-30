@@ -67,6 +67,11 @@ module Exist #:nodoc:
     #
     # @return *LibXML::XML::Document* The XML tree produced by the query.
     def select(params)
+      # Raise an error if the :from parameter is not setted
+      if params[:from].nil? or params[:from].empty?
+        raise ArgumentError, ':from parameter nil or empty'
+      end
+
       # First of all, let's prepare the parameters
       params[:element] = params[:from].chop #pseudo-singular
       params[:collection] = '/db' + @db.collection
