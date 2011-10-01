@@ -130,6 +130,7 @@ module Exist #:nodoc:
     # @return *LibXML::XML::Document* The XML tree produced by the query.
     # However, the resulting XML is not very interesting in this query.
     def insert(params)
+      xquery_update(params, [:row, :at, :element])
       # Raise an ArgumentError if some the mandatory parameters are not passed
       raise ArgumentError if incorrect_params?(params, [:row, :at, :element])
 
@@ -174,17 +175,7 @@ module Exist #:nodoc:
     # @return *LibXML::XML::Document* The XML tree produced by the query.
     # However, the resulting XML is not very interesting in this query.
     def update(params)
-      # Raise an ArgumentError if some the mandatory parameters are not passed
-      raise ArgumentError if incorrect_params?(params, [:value, :with])
-
-      # Prepare the query
-      unless params[:where].nil? or params[:where].empty?
-        params[:value] += '[' + params[:where] + ']'
-      end
-
-      # Execute the query
-      @query = replace_tags read_query('update'), params
-      xml = execute
+      xquery_update(params, [:value, :with])
     end
 
     # The _delete_ query. It takes the following parameters to work:
@@ -213,8 +204,25 @@ module Exist #:nodoc:
     # @return *LibXML::XML::Document* The XML tree produced by the query.
     # However, the resulting XML is not very interesting in this query.
     def delete(params)
+      xquery_update(params, [:value])
+    end
+
+    private
+
+    ##
+    # Implements the update and delete queries since they are almost
+    # identical in its logic.
+    #
+    # @params *Hash* params The parameters of the query.
+    #
+    # @params *Array* mandatory The parameters that must be setted by
+    # the user before executing this query.
+    #
+    # @return *LibXML::XML::Document* The XML tree produced by the query.
+    # However, the resulting XML is not very interesting in this query.
+    def xquery_update(params, mandatory)
       # Raise an ArgumentError if some the mandatory parameters are not passed
-      raise ArgumentError if incorrect_params?(params, [:value])
+      raise ArgumentError if incorrect_params?(params, mandatory)
 
       # Prepare the query
       unless params[:where].nil? or params[:where].empty?
@@ -222,11 +230,9 @@ module Exist #:nodoc:
       end
 
       # Execute the query
-      @query = replace_tags read_query('delete'), params
+      @query = replace_tags read_query(caller[0][/`.*'/][1..-2]), params
       xml = execute
     end
-
-    private
 
     ##
     # Generate the return statement necessery to complete some of the
