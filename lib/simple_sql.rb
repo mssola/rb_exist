@@ -65,6 +65,8 @@ module Exist #:nodoc:
     # algorithm by appending _ascending or _descending to the row's name.
     # However, be aware that this will only work with strings.
     #
+    # @param *Hash* params The parameters of the query.
+    #
     # @return *LibXML::XML::Document* The XML tree produced by the query.
     def select(params)
       # Raise an error if the :from parameter is not setted
@@ -89,18 +91,55 @@ module Exist #:nodoc:
     end
 
     ##
-    # TODO
-    # The following parameters must be handled: :row, :at, :element, :where
+    # The _insert_ query. It takes the following parameters to work:
     #
+    #   - row: The row we want to insert.
+    #   - at: Where should the inserting be done.
+    #   - element: The _at_ parameter is relative to this element.
+    #   - where: A condition that the element should match.
+    #
+    # This insert query is quite different to the SQL standard since we
+    # want to take care of all the XQuery possibilities. The special magic
+    # comes with the two parameters _at_ and _element_. Let's take a
+    # closer look: (imagine that our database has a table 'user' which
+    # is empty)
+    #
+    #   sql = db.simple_sql # db is our Database connection
+    #   row = "<user><name>Miquel</name><age>21</age></user>"
+    #   sql.insert(:row => row, :at => 'into', :element => 'data')
+    #
+    # With this, the row will be appended after the last child node of the
+    # data element. We can also specify 'preceding' and 'following'. For
+    # example, after the query above, we can now write:
+    #
+    #   row = "<user><name>Another</name><age>20</age></user>"
+    #   sql.insert(:row => row, :at => 'preceding', :element => 'user')
+    #
+    # Now, this row will be inserted before the user node (in our case then,
+    # before the one containing 'Miquel'). The last case is:
+    #
+    #    row = generate_xml('user', name: 'YetAnother', age: '21')
+    #    sql.insert( :row => row, :at => 'following', :element => 'user',
+    #                   :where => "name/text()='Miquel'")
+    #
+    # With this last query, the 'YetAnother' node will be inserted after the
+    # node containing 'Miquel' and before the one containing 'Another'.
+    #
+    # @param *Hash* params The parameters of the query.
+    #
+    # @return *LibXML::XML::Document* The XML tree produced by the query.
     def insert(params)
+      # Raise an ArgumentError if some the mandatory parameters are not passed
       raise ArgumentError if incorrect_insert?(params)
 
+      # Prepare the query
       if params[:where].nil? or params[:where].empty?
         params[:filter] = params[:element]
       else
         params[:filter] = params[:element] + '[' + params[:where] + ']'
       end
 
+      # And finally it can be executed
       kuery = read_query 'insert'
       @query = replace_tags kuery, params
       xml = execute

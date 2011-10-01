@@ -1,3 +1,4 @@
+#encoding: UTF-8
 
 require 'libxml'
 
@@ -26,17 +27,40 @@ def compare_xml(xml, test_name, params)
   true
 end
 
+##
+# Generate an XML row.
+#
+# @param *String* tag_name The name of the tag
+#
+# @param *Hash* values The subnodes of the tag named "#{tag_name}".
+# Each key represents the name of each tag.
+#
+# @return *String* A string containing a valid XML row.
+def generate_xml(tag_name, values)
+  xml = "<#{tag_name}>"
+  values.each { |key, value| xml += "<#{key}>#{value}</#{key}>" }
+  xml += "</#{tag_name}>"
+end
+
 # Let the testing begin!
 
 describe 'SimpleSQL' do
-  it 'raises an exception if the from parameter is not setted' do
+  it 'raises an exception if some of the parameters are not properly passed' do
     db = Exist::ExistDB.new("#{$server_ip}/db")
     base =File.dirname(__FILE__) + '/data/'
     table = IO.read(base + 'users.xml')
     db.store 'users.xml', table
     sql = db.simple_sql
+
+    # Select
     expect{sql.select({})}.to raise_error(ArgumentError)
     expect{sql.select({ :where => 'age>20'})}.to raise_error(ArgumentError)
+
+    # Insert
+    expect{sql.select({})}.to raise_error(ArgumentError)
+    expect{sql.select(row: 'asd')}.to raise_error(ArgumentError)
+    expect{sql.select(row: 'asd', element: 'this')}.to raise_error(ArgumentError)
+
     db.delete 'users.xml'
   end
 
@@ -61,15 +85,32 @@ describe 'SimpleSQL' do
     db.delete 'users.xml'
   end
 
-  it ' executes the insert query correctly' do
+  it 'executes the insert query correctly' do
     db = Exist::ExistDB.new("#{$server_ip}/db")
     base =File.dirname(__FILE__) + '/data/'
-    table = IO.read(base + 'users.xml')
+    table = IO.read(base + 'empty.xml')
     db.store 'users.xml', table
     sql = db.simple_sql
-    sql.insert({:row => '<tag>asd</tag>'})
+
+    row = generate_xml('user', name: 'Pedobear', age: '20')
+    sql.insert(:row => row, :at => 'into', :element => 'data')
+    xml = sql.select(:from => 'users')
+    compare_xml(xml, base + 'single.xml', ['name', 'age']).should eql(true)
+
+    row = generate_xml('user', name: 'Miquel Sabaté', age: '21')
+    sql.insert(:row => row, :at => 'preceding', :element => 'user')
+    xml = sql.select(:from => 'users')
+    compare_xml(xml, base + 'users_rev.xml', ['name', 'age']).should eql(true)
+
+    row = generate_xml('user', name: 'Another', age: '21')
+    sql.insert( :row => row, :at => 'following', :element => 'user',
+            :where => "name/text()='Miquel Sabaté'")
+    xml = sql.select(:from => 'users')
+    compare_xml(xml, base + 'following.xml', ['name', 'age']).should eql(true)
+
     db.delete 'users.xml'
   end
 
   pending 'it executes the update query correctly'
+  pending 'it executes the delete query correctly'
 end
