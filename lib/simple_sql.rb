@@ -229,7 +229,8 @@ module Exist #:nodoc:
       end
 
       # Execute the query
-      @query = replace_tags read_query(caller[0][/`.*'/][1..-2]), params
+      name = caller[0][/`.*'/][1..-2] # Oh yeah!
+      @query = replace_tags read_query(name), params
       xml = execute
     end
 

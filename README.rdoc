@@ -82,53 +82,5 @@ method you can execute multiple queries by taking the SQL's point of view.
 
 The SimpleSQL class defines some methods that emulate the SQL syntax and each
 of these methods expect some very specific parameters to be passed in order
-to successfully be executed. Let's see some of the queries you can execute.
-
-=== Select
-
-The _select_ query is an SQL query that requests some information on the
-database. In order to do that, the query has to specify the table to look at,
-the conditions that the selected rows must meet, the order of the results and
-the name of the rows we are fetching. In our case, a select query can be
-as simple as (in all the examples we assume that the sql object is an instance
-of the Exist::SimpleSQL class):
-
-  sql.select(:from => 'users')
-
-The result will be an XML with the info of all the users. We may want to
-order this results by the name attribute:
-
-  # Both examples produce the same query
-  sql.select(:from => 'users', :order_by => 'name')
-  sql.select(:from => 'users', :order_by => 'name_ascending')
-
-We can filter the results by passing an adequate condition. For exampe, let's
-say that we want all the users that meet the condition 'age>20':
-
-  sql.select(:from => 'users', :order_by => 'name', :where => 'age>20')
-
-Finally, let's say that we only want to get the age of the users. In order to
-do that, we have to deal with the _rows_ parameter which take an array as
-its value. In this array we have to write all the rows we want to select.
-Following the example:
-
-  sql.select(rows: ['age'], from: 'users', order_by: 'name', where: 'age>20')
-
-Note that the only mandatory parameter is the _from_ one. In fact, an
-ArgumentError exception will be raised if this parameter is not setted. All the
-other parameters have a default value: rows='*', order_by='any_ascending' and
-where=''.
-
-=== Insert
-
-TODO
-
-=== Update
-
-TODO
-
-=== Delete
-
-TODO
-
-
+to successfully be executed. These methods are: select, insert, update and delete.
+Read the documentation of each of this methods for further information.
