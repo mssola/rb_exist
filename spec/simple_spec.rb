@@ -111,6 +111,27 @@ describe 'SimpleSQL' do
     db.delete 'users.xml'
   end
 
-  pending 'it executes the update query correctly'
+  it 'executes the update query correctly' do
+    db = Exist::ExistDB.new("#{$server_ip}/db")
+    base =File.dirname(__FILE__) + '/data/'
+    table = IO.read(base + 'users.xml')
+    db.store 'users.xml', table
+    sql = db.simple_sql
+
+    sql.update(:value => 'name', :where => "text()='Pedobear'",
+               :with => '<name>Trollface</name>')
+    sql.update(:value => 'user/age', :where => "../name/text()='Trollface'",
+               :with => '<age>22</age>')
+    xml = sql.select(:from => 'users')
+    compare_xml(xml, base + 'update.xml', ['name', 'age']).should eql(true)
+
+    sql.update(:value => 'user', :where => "name/text()='Trollface'",
+               :with => '<user><name>Pedobear</name><age>20</age></user>')
+    xml = sql.select(:from => 'users')
+    compare_xml(xml, base + 'users.xml', ['name', 'age']).should eql(true)
+
+    db.delete 'users.xml'
+  end
+
   pending 'it executes the delete query correctly'
 end

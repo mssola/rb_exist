@@ -40,10 +40,10 @@ module Exist #:nodoc:
     ##
     # The _select_ query. It takes the following parameters to work:
     #
-    #   - rows: the rows we want to select.
+    #   - rows: the rows we want to select. (optional)
     #   - from: the table.
-    #   - where: the condition to the select query.
-    #   - order_by: how should the result be ordered.
+    #   - where: the condition to the select query. (optional)
+    #   - order_by: how should the result be ordered. (optional)
     #
     # Select subqueries are not allowed since I don't know exactly
     # its behavior. Let's illustrate an example. Imagine that we
@@ -96,7 +96,7 @@ module Exist #:nodoc:
     #   - row: The row we want to insert.
     #   - at: Where should the inserting be done.
     #   - element: The _at_ parameter is relative to this element.
-    #   - where: A condition that the element should match.
+    #   - where: A condition that the element should match. (optional)
     #
     # This insert query is quite different to the SQL standard since we
     # want to take care of all the XQuery possibilities. The special magic
@@ -128,15 +128,14 @@ module Exist #:nodoc:
     # @param *Hash* params The parameters of the query.
     #
     # @return *LibXML::XML::Document* The XML tree produced by the query.
+    # However, the resulting XML is not very interesting in this query.
     def insert(params)
       # Raise an ArgumentError if some the mandatory parameters are not passed
       raise ArgumentError if incorrect_params?(params, [:row, :at, :element])
 
       # Prepare the query
-      if params[:where].nil? or params[:where].empty?
-        params[:filter] = params[:element]
-      else
-        params[:filter] = params[:element] + '[' + params[:where] + ']'
+      unless params[:where].nil? or params[:where].empty?
+        params[:element] += '[' + params[:where] + ']'
       end
 
       # And finally it can be executed
@@ -146,12 +145,46 @@ module Exist #:nodoc:
     end
 
     ##
-    # TODO
+    # The _update_ query. It takes the following arguments to work:
+    #
+    #   - value: the node to be updated.
+    #   - with: the new node.
+    #   - where: a condition that the value should match (optional)
+    #
+    # This query is quite easy to use since it doesn't take complicated
+    # parameters. Let's write an example:
+    #
+    #   sql = db.simple_sql # db is our Database connection
+    #   sql.update(:value => 'name', :where => "text()='John'",
+    #                   :with => '<name>Peter</name>')
+    #   sql.update(:value => 'user/age', :where => "../name/text()='Peter'",
+    #                :with => '<age>18</age>')
+    #
+    # This is a version in which we update the user subnodes one by one. Now,
+    # let's update everything in a single query:
+    #
+    #   sql.update(:value => 'user', :where => "name/text()='Peter'",
+    #           :with => '<user><name>John</name><age>22</age></user>')
+    #
+    # And by doing this, we updated the user with name 'Peter' with the
+    # values 'John' and '22'.
+    #
+    # @param *Hash* params The parameters of the query.
+    #
+    # @return *LibXML::XML::Document* The XML tree produced by the query.
+    # However, the resulting XML is not very interesting in this query.
     def update(params)
       # Raise an ArgumentError if some the mandatory parameters are not passed
       raise ArgumentError if incorrect_params?(params, [:value, :with])
 
-      
+      # Prepare the query
+      unless params[:where].nil? or params[:where].empty?
+        params[:value] += '[' + params[:where] + ']'
+      end
+
+      # Execute the query
+      @query = replace_tags read_query('update'), params
+      xml = execute
     end
 
     # TODO

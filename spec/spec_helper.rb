@@ -3,7 +3,7 @@ require 'bundler/setup'
 
 require 'rb_exist'
 
-# Ugly but effective...
+# Ugly but effective... Change it for your own needs
 $server_ip = 'localhost:8088'
 
 # Load every single test
