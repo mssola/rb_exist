@@ -7,6 +7,9 @@ inspired in the un-oficial Python support: pyexist. All the classes are
 contained inside the module Exist for obvious reasons. There are three
 important classes: ExistDB, XQuery and SimpleSQL.
 
+In order to work, this gem requires the 'libxml-ruby' gem. Moreover,
+the Ruby interpreter version must be >= 1.9.x.
+
 == ExistDB
 
 ExistDB creates the connection with the eXist remote database. With this

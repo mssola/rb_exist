@@ -1,4 +1,10 @@
 
+##
+# Execute a simple select query by raw xquery code.
+#
+# @param *String* where A condition that the selected rows must match.
+#
+# @return *Integer* The number of matches this query produced.
 def user_query(where)
   db = Exist::ExistDB.new("#{$server_ip}/db")
   table = IO.read(File.dirname(__FILE__) + '/data/users.xml')
