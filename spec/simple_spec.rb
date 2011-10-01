@@ -61,6 +61,15 @@ describe 'SimpleSQL' do
     db.delete 'users.xml'
   end
 
-  pending 'it executes the insert query correctly'
+  it ' executes the insert query correctly' do
+    db = Exist::ExistDB.new("#{$server_ip}/db")
+    base =File.dirname(__FILE__) + '/data/'
+    table = IO.read(base + 'users.xml')
+    db.store 'users.xml', table
+    sql = db.simple_sql
+    sql.insert({:row => '<tag>asd</tag>'})
+    db.delete 'users.xml'
+  end
+
   pending 'it executes the update query correctly'
 end

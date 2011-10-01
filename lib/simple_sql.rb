@@ -90,8 +90,20 @@ module Exist #:nodoc:
 
     ##
     # TODO
+    # The following parameters must be handled: :row, :at, :element, :where
+    #
     def insert(params)
-      # TODO
+      raise ArgumentError if incorrect_insert?(params)
+
+      if params[:where].nil? or params[:where].empty?
+        params[:filter] = params[:element]
+      else
+        params[:filter] = params[:element] + '[' + params[:where] + ']'
+      end
+
+      kuery = read_query 'insert'
+      @query = replace_tags kuery, params
+      xml = execute
     end
 
     ##
@@ -162,6 +174,18 @@ module Exist #:nodoc:
       end
       res[0] ||= order
       res
+    end
+
+    ##
+    # Has this insert query not setted some mandatory parameters?
+    #
+    # @param *Hash* params The parameters passed to this query
+    #
+    # @return *Boolean* false if everything is just fine, true otherwise
+    def incorrect_insert?(params)
+      mandatory = [:row, :at, :element]
+      mandatory.each { |m| return true if params[m].nil? or params[m].empty? }
+      false
     end
   end
 end
