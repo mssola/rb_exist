@@ -57,9 +57,17 @@ describe 'SimpleSQL' do
     expect{sql.select({ :where => 'age>20'})}.to raise_error(ArgumentError)
 
     # Insert
-    expect{sql.select({})}.to raise_error(ArgumentError)
-    expect{sql.select(row: 'asd')}.to raise_error(ArgumentError)
-    expect{sql.select(row: 'asd', element: 'this')}.to raise_error(ArgumentError)
+    expect{sql.insert({})}.to raise_error(ArgumentError)
+    expect{sql.insert(row: 'asd')}.to raise_error(ArgumentError)
+    expect{sql.insert(row: 'asd', element: 'this')}.to raise_error(ArgumentError)
+
+    # Update
+    expect{sql.update({})}.to raise_error(ArgumentError)
+    expect{sql.update(where: 'age>20')}.to raise_error(ArgumentError)
+
+    # Delete
+    expect{sql.delete({})}.to raise_error(ArgumentError)
+    expect{sql.delete(where: 'age>20')}.to raise_error(ArgumentError)
 
     db.delete 'users.xml'
   end
@@ -133,5 +141,22 @@ describe 'SimpleSQL' do
     db.delete 'users.xml'
   end
 
-  pending 'it executes the delete query correctly'
+  it 'executes the delete query correctly' do
+    db = Exist::ExistDB.new("#{$server_ip}/db")
+    base =File.dirname(__FILE__) + '/data/'
+    table = IO.read(base + 'users.xml')
+    db.store 'users.xml', table
+    sql = db.simple_sql
+
+    sql.delete(:value => 'user')
+    xml = sql.select(:from => 'users')
+    compare_xml(xml, base + 'empty.xml', ['name', 'age']).should eql(true)
+
+    db.delete 'users.xml'
+    db.store 'users.xml', table
+
+    sql.delete(:value => 'user', :where => "name/text()='Another'")
+    xml = sql.select(:from => 'users')
+    compare_xml(xml, base + 'users_rev.xml', ['name', 'age']).should eql(true)
+  end
 end

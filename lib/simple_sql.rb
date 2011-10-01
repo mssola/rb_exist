@@ -187,9 +187,43 @@ module Exist #:nodoc:
       xml = execute
     end
 
-    # TODO
+    # The _delete_ query. It takes the following parameters to work:
+    #
+    #   - value: the value/node we want to delete
+    #   - where: a condition that the value/node must match. (optional)
+    #
+    # This is the simplest query. Imagine that we want to delete all the users
+    # in our table. Well, the code below will do the job:
+    #
+    #   sql = db.simple_sql # db is our Database connection
+    #   sql.delete(:value => 'user')
+    #
+    # We can also remove a specific row of the table by doing the following:
+    #
+    #   sql.delete(:value => 'age') # There's no longer an 'age' attribute
+    #
+    # You can delete just a single user that meets a specific condition:
+    #
+    #   sql.delete(:value => 'user', :where => "name/text()='Miquel'"
+    #
+    # With the code above we deleted the user with name 'Miquel'.
+    #
+    # @param *Hash* params The parameters of the query.
+    #
+    # @return *LibXML::XML::Document* The XML tree produced by the query.
+    # However, the resulting XML is not very interesting in this query.
     def delete(params)
-      # TODO
+      # Raise an ArgumentError if some the mandatory parameters are not passed
+      raise ArgumentError if incorrect_params?(params, [:value])
+
+      # Prepare the query
+      unless params[:where].nil? or params[:where].empty?
+        params[:value] += '[' + params[:where] + ']'
+      end
+
+      # Execute the query
+      @query = replace_tags read_query('delete'), params
+      xml = execute
     end
 
     private
