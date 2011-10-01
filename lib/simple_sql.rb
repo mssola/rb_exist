@@ -130,7 +130,6 @@ module Exist #:nodoc:
     # @return *LibXML::XML::Document* The XML tree produced by the query.
     # However, the resulting XML is not very interesting in this query.
     def insert(params)
-      xquery_update(params, [:row, :at, :element])
       # Raise an ArgumentError if some the mandatory parameters are not passed
       raise ArgumentError if incorrect_params?(params, [:row, :at, :element])
 
