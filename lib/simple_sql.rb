@@ -130,7 +130,7 @@ module Exist #:nodoc:
     # @return *LibXML::XML::Document* The XML tree produced by the query.
     def insert(params)
       # Raise an ArgumentError if some the mandatory parameters are not passed
-      raise ArgumentError if incorrect_insert?(params)
+      raise ArgumentError if incorrect_params?(params, [:row, :at, :element])
 
       # Prepare the query
       if params[:where].nil? or params[:where].empty?
@@ -148,7 +148,10 @@ module Exist #:nodoc:
     ##
     # TODO
     def update(params)
-      # TODO
+      # Raise an ArgumentError if some the mandatory parameters are not passed
+      raise ArgumentError if incorrect_params?(params, [:value, :with])
+
+      
     end
 
     # TODO
@@ -216,13 +219,16 @@ module Exist #:nodoc:
     end
 
     ##
-    # Has this insert query not setted some mandatory parameters?
+    # Check if the parameters provided by the user to the query are properly
+    # setted. It only checks if the mandatory fields are not empty or nil.
     #
     # @param *Hash* params The parameters passed to this query
     #
+    # @param *Array* mandatory The mandatory fields that the params hash
+    # must have setted.
+    #
     # @return *Boolean* false if everything is just fine, true otherwise
-    def incorrect_insert?(params)
-      mandatory = [:row, :at, :element]
+    def incorrect_params?(params, mandatory) #:doc:
       mandatory.each { |m| return true if params[m].nil? or params[m].empty? }
       false
     end
